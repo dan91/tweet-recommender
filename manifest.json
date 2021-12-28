@@ -9,7 +9,7 @@
   "content_scripts": [
    {
      "matches": ["*://*.twitter.com/*"],
-     "js":  ["js/jquery-3.6.0.min.js", "firebase-app.js", "firebase-firestore.js", "misinfo_tweets.js", "assignments.js", "feed.js"],
+     "js":  ["js/jquery-3.6.0.min.js", "js/firebase-app.js", "js/firebase-firestore.js", "js/firebase-credentials.js", "misinfo_tweets.js", "assignments.js", "feed.js"],
      "run_at": "document_end"
    }
  ],

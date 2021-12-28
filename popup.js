@@ -1,4 +1,4 @@
-// Initialize butotn with users's prefered color
+// Initialize button with users's prefered color
 let input = document.getElementById("prolificID");
 let button = document.getElementById("submitID");
 // let reset = document.getElementById("resetID");
@@ -6,14 +6,6 @@ let reset = document.getElementById("resetLocalStorage");
 let messageDiv = document.getElementById("message");
 let durationSpan = document.getElementById("duration");
 let completionLink = document.getElementById("completionLink");
-var firebaseConfig = {
-  apiKey: "AIzaSyDtR1bR2loAJhBITEWHLKYEFO6nMoEExWg",
-  authDomain: "cov-misinfo.firebaseapp.com",
-  projectId: "cov-misinfo",
-  storageBucket: "cov-misinfo.appspot.com",
-  messagingSenderId: "707334142124",
-  appId: "1:707334142124:web:2c4b1f681ccec80cfa4709"
-};
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 

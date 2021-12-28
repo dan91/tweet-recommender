@@ -1,15 +1,8 @@
-var firebaseConfig = {
-	apiKey: "AIzaSyDtR1bR2loAJhBITEWHLKYEFO6nMoEExWg",
-	authDomain: "cov-misinfo.firebaseapp.com",
-	projectId: "cov-misinfo",
-	storageBucket: "cov-misinfo.appspot.com",
-	messagingSenderId: "707334142124",
-	appId: "1:707334142124:web:2c4b1f681ccec80cfa4709"
-};
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
+// we need to get rid of this evil gobal variables...
 misinfo_ids = misinfo_tweets.map(e => e.id)
 alreadyInjected = []
 notifiedStudyCompleted = undefined
@@ -92,11 +85,7 @@ function checkIfLoaded() {
 		} else if (window.location.pathname.includes('status') && !activated && $("article").length >= 1) {
 			tweet_id = window.location.pathname.split('/').pop()
 			if (misinfo_ids.includes(tweet_id)) {
-				// $("article").eq(0).parent().parent().parent().parent().children().not(':first').remove()
 				setTimeout(function () {
-
-
-					// $('div[role=group]').closest("article").parent().parent().parent().nextAll().remove()
 
 					activateObserver()
 					activated = true;
