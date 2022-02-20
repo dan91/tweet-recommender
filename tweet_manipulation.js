@@ -1,30 +1,3 @@
-function replaceArticleY(article) {
-	realTweet = new RealTweet($(article))
-	to_replace = $(article)
-
-	// choose random fake tweet
-	var ran_misinfo = new_random()
-	if (ran_misinfo == undefined) {
-		return;
-	} else if ($(to_replace).attr('data-misinfo-id') != undefined) {
-		const index = alreadyInjected.indexOf(ran_misinfo);
-		if (index > -1) {
-			alreadyInjected = alreadyInjected.splice(index - 1, 1);
-		}
-		return;
-	}
-
-	tweet = manipulated_tweets[ran_misinfo];
-	tweet.index = ran_misinfo;
-	fakeTweet = new FakeTweet(tweet);
-	realTweet.replaceWith(fakeTweet);
-	
-	modifyLikeButton(article, fakeTweet.id)
-
-	observer.observe($(to_replace)[0]);
-}
-
-
 function replaceArticle(article) {
 	to_replace = $(article)
 	var ran_misinfo = new_random()
@@ -45,7 +18,7 @@ function replaceArticle(article) {
 	// observer.observe($(to_replace)[0]);
 }
 
-function replaceArticleX(article) {
+function replaceArticleOld(article) {
 	to_replace = $(article)
 	// choose random fake tweet
 	var ran_misinfo = new_random()
