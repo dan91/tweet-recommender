@@ -4,12 +4,13 @@
   "version": "2.1.1",
   "manifest_version": 3,
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
    {
      "matches": ["*://*.twitter.com/*"],
-     "js":  ["js/jquery-3.6.0.min.js", "js/firebase-app.js", "js/firebase-firestore.js", "js/firebase-credentials.js", "misinfo_tweets.js", "assignments.js", "feed.js"],
+     "js":  ["js/jquery-3.6.0.min.js", "js/firebase-app.js", "js/firebase-firestore.js", "js/firebase-credentials.js", "config.js", "tweet/Tweet.js", "tweet/FakeTweet.js", "tweet/RealTweet.js", "manipulated_tweets.js", "assignments.js", "feed_manipulation.js", "experiment.js", "tweet_manipulation.js", "nudge.js", "icons.js", "feed.js"],
      "run_at": "document_end"
    }
  ],

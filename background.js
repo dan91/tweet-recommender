@@ -1,3 +1,8 @@
+console.log('config')
+
+
+import('config.js')
+console.log('config', participantIdentifier)
 chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
   // this is needed to load extension on new tab since Twitter updates navigation history
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -31,6 +36,7 @@ chrome.runtime.onMessage.addListener(
             active: true
           }, function (tabs) {
             chrome.tabs.create({ 'url': url }, function () {
+              // this might not work always > do not close tab automatically in the future
               chrome.tabs.remove(tabs[0].id);
             });
           });
