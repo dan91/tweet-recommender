@@ -15,7 +15,7 @@ function injectMisinfo() {
 	var replaced = $("article[data-misinfo-id]").length
 	for (var j = 0; j <= num_tweets * misinfo_proportion; j++) {
 		if (replaced < (num_tweets * misinfo_proportion)) {
-			tweet_idx_to_replace = FakeTweet.getRandomInt(0, num_tweets)
+			tweet_idx_to_replace = Maths.getRandomInt(0, num_tweets)
 			if (!filtered.includes(tweet_idx_to_replace) && !isElementInViewport($("article").eq(tweet_idx_to_replace)[0])) {
 				replaceArticle($("article").eq(tweet_idx_to_replace))
 				replaced++;

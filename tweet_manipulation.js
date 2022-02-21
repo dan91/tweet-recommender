@@ -14,7 +14,7 @@ function replaceArticle(article) {
 	tweet = manipulated_tweets[ran_misinfo];
 	tweet.index = ran_misinfo;
 	fakeTweet = new FakeTweet(tweet);
-	realTweet.replaceWith(article, ran_misinfo, fakeTweet);
+	realTweet.replaceWith(fakeTweet);
 	// observer.observe($(to_replace)[0]);
 }
 
@@ -65,7 +65,7 @@ function replaceArticleOld(article) {
 	// reply count
 	// fake some engagement if needed
 	if (retweets < 5) {
-		retweets = getRandomInt(11, 99)
+		retweets = Maths.getRandomInt(11, 99)
 	}
 	if (likes == 0) { likes = Math.floor(retweets * 4) }
 	if (replies == 0) { replies = Math.floor(retweets / 2) }
@@ -136,7 +136,7 @@ function new_random(firstHalfExhausted = false) {
 
 	console.log("[ran] select misinfo between 0 and ", limit)
 	console.log("[ran] alreadyInjected ", alreadyInjected.length)
-	var ran_misinfo = FakeTweet.getRandomInt(0, limit)
+	var ran_misinfo = Maths.getRandomInt(0, limit)
 	if (!alreadyInjected.includes(ran_misinfo)) {
 		return ran_misinfo;
 	} else if (alreadyInjected.length < limit) {

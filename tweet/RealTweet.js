@@ -1,29 +1,28 @@
 class RealTweet extends Tweet {
 	constructor (articleHTML) {
 		super();
-		this._article = $(articleHTML);
+		this.article = $(articleHTML);
 	}
 
-	replaceWith(article, ran_misinfo, fakeTweet) {
-		this._fakeTweet = fakeTweet;
-		to_replace = $(article)
+	replaceWith(fakeTweet) {
+		this.fakeTweet = fakeTweet;
 
-		let text = $(tweet['html']).first()[0]
-
-		$(to_replace).attr('data-misinfo-id', ran_misinfo)
-		$(to_replace).attr('data-misinfo-tweet-id', fakeTweet.id)
+		$(this.article).attr('data-misinfo-id', fakeTweet.index)
+		$(this.article).attr('data-misinfo-tweet-id', fakeTweet.id)
 
 		this.removeSocialContext();
 		this.removePromotedMessage();
+
 		this.replaceLink();
 		this.replaceProfileImage();
 		this.replaceUserName();
 		this.replaceName();
 
-		$(to_replace).find("[data-testid='reply'] span[data-testid='app-text-transition-container'] span").text(fakeTweet.replies)
-		$(to_replace).find("[data-testid='retweet'] span[data-testid='app-text-transition-container'] span").text(fakeTweet.retweets)
-		$(to_replace).find("[data-testid='like'] span[data-testid='app-text-transition-container'] span").text(fakeTweet.likes)
-		let contentContainer = $(article).find("div[lang]").parent().parent()
+		this.replaceReplies();
+		this.replaceRetweets();
+		this.replaceLikes();
+
+		let contentContainer = $(this.article).find("div[lang]").parent().parent()
 		contentContainer.css('border', '0px solid red')
 		$(contentContainer).children().not(":last").remove()
 
@@ -72,78 +71,79 @@ class RealTweet extends Tweet {
 		$(contentContainer).find("div[lang]").css('font-size', '15px')
 		$(contentContainer).find("div[lang]").css('line-height', '20px')
 		$(contentContainer).find("div[lang]").parent().css('margin-top', '0')
-		modifyLikeButton(article, fakeTweet.id)
+		modifyLikeButton(this.article, fakeTweet.id)
 
-		observer.observe($(to_replace)[0]);
-}
-
-	static new_random(firstHalfExhausted = false) {
-	half = (manipulated_tweets.length - 1) / 2
-	full = (manipulated_tweets.length - 1)
-	limit = firstHalfExhausted ? full : half
-
-	console.log("[ran] select misinfo between 0 and ", limit)
-	console.log("[ran] alreadyInjected ", alreadyInjected.length)
-	var ran_misinfo = FakeTweet.getRandomInt(0, limit)
-	if (!alreadyInjected.includes(ran_misinfo)) {
-		return ran_misinfo;
-	} else if (alreadyInjected.length < limit) {
-		return new_random(firstHalfExhausted)
-	} else {
-		console.log("[ran] no new tweets")
-		if (!firstHalfExhausted) {
-			console.log("[ran] first half exhausted, now choose between all")
-			return new_random(true)
-		} else {
-			alreadyInjected = []
-			chrome.storage.local.set({ 'alreadyInjected': [] });
-			console.log("[ran] completely exhausted. RESET")
-			return new_random(true)
-		}
-	}
+		observer.observe($(this.article)[0]);
 	}
 
 	removePromotedMessage() {
-	let res = Array.from(this._article.get()[0].querySelectorAll('span'))
-		.find(el => el.textContent.includes('SomeText, text continues.'));
-		console.log("promoted", res)
-			// $(this._article).find("span:contains('Promoted')").parent().parent().remove()
+		let res = Array.from(this.article.get()[0].querySelectorAll('span'))
+			.find(el => el.textContent === 'Promoted');
+		if(res) {
+			res.parentElement.parentElement.remove()
+		}
 	}
 
 	removeSocialContext() {
-		$(this._article).find("[data-testid='socialContext']").parents().eq(5).remove()
+		$(this.article).find("[data-testid='socialContext']").parents().eq(5).remove()
 	}
 
 	replaceLink() {
-		$(this._article).find("a").eq(2).attr('href', '/' + this._fakeTweet.username + '/status/' + this._fakeTweet.id)
+		$(this.article).find("a").eq(2).attr('href', '/' + this.fakeTweet.username + '/status/' + this.fakeTweet.id)
 	}
 
 	replaceProfileImage() {
-		$(this._article).find("a").eq(0).find("img").attr('src', this._fakeTweet.profile_image_url)
-		$(this._article).find("a").eq(0).find("img").prev().attr("style", "background-image: url('" + this._fakeTweet.profile_image_url + "')")
+		$(this.article).find("a").eq(0).find("img").attr('src', this.fakeTweet.profile_image_url)
+		$(this.article).find("a").eq(0).find("img").prev().attr("style", "background-image: url('" + this.fakeTweet.profile_image_url + "')")
 
 	}
 
 	replaceUserName() {
-		$(this._article).find("a[role=link] div[dir=auto]:first-child span span").text(this._fakeTweet.username)
-		.parents().eq(4).attr('href', '/' + this._fakeTweet.username)
+		$(this.article).find("a[role=link] div[dir=auto]:first-child span span").text(this.fakeTweet.username)
+		.parents().eq(4).attr('href', '/' + this.fakeTweet.username)
 		.hover(function (e) { e.stopPropagation() })
 	}
 
 	replaceName() {
-		$(this._article).find("a[role=link] div[dir=ltr] span").text("@" + this._fakeTweet.name)
+		$(this.article).find("a[role=link] div[dir=ltr] span").text("@" + this.fakeTweet.name)
 	}
 
 	replaceReplies() {
-		$(this._article).find("[data-testid='reply'] span[data-testid='app-text-transition-container'] span").text(this._fakeTweet.replies)	
+		$(this.article).find("[data-testid='reply'] span[data-testid='app-text-transition-container'] span").text(this.fakeTweet._replies)	
 	}
 	
 	replaceRetweets() {
-		$(this._article).find("[data-testid='retweet'] span[data-testid='app-text-transition-container'] span").text(this._fakeTweet.retweets)
+		$(this.article).find("[data-testid='retweet'] span[data-testid='app-text-transition-container'] span").text(this.fakeTweet._retweets)
 	}
 	
 	replaceLikes() {
-		$(this._article).find("[data-testid='like'] span[data-testid='app-text-transition-container'] span").text(this._fakeTweet.likes)
+		$(this.article).find("[data-testid='like'] span[data-testid='app-text-transition-container'] span").text(this.fakeTweet._likes)
+	}
+
+	static new_random(firstHalfExhausted = false) {
+		half = (manipulated_tweets.length - 1) / 2
+		full = (manipulated_tweets.length - 1)
+		limit = firstHalfExhausted ? full : half
+
+		console.log("[ran] select misinfo between 0 and ", limit)
+		console.log("[ran] alreadyInjected ", alreadyInjected.length)
+		var ran_misinfo = FakeTweet.getRandomInt(0, limit)
+		if (!alreadyInjected.includes(ran_misinfo)) {
+			return ran_misinfo;
+		} else if (alreadyInjected.length < limit) {
+			return new_random(firstHalfExhausted)
+		} else {
+			console.log("[ran] no new tweets")
+			if (!firstHalfExhausted) {
+				console.log("[ran] first half exhausted, now choose between all")
+				return new_random(true)
+			} else {
+				alreadyInjected = []
+				chrome.storage.local.set({ 'alreadyInjected': [] });
+				console.log("[ran] completely exhausted. RESET")
+				return new_random(true)
+			}
+		}
 	}
 
 }
