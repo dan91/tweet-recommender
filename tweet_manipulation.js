@@ -10,7 +10,7 @@ function replaceArticle(article) {
 			}
 			return;
 	}
-	let realTweet = new RealTweet(article)
+	let realTweet = new RealTweet(article[0])
 	tweet = manipulated_tweets[ran_misinfo];
 	tweet.index = ran_misinfo;
 	fakeTweet = new FakeTweet(tweet);

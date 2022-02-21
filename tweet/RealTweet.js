@@ -1,14 +1,15 @@
 class RealTweet extends Tweet {
 	constructor (articleHTML) {
 		super();
-		this.article = $(articleHTML);
+		this.article = articleHTML;
+		// DOM.createElementFromHTML(articleHTML);
 	}
 
 	replaceWith(fakeTweet) {
 		this.fakeTweet = fakeTweet;
 
-		$(this.article).attr('data-misinfo-id', fakeTweet.index)
-		$(this.article).attr('data-misinfo-tweet-id', fakeTweet.id)
+		this.article.dataset.misinfoId = fakeTweet.index;
+		this.article.dataset.misinfoTweetId = fakeTweet.id;
 
 		this.removeSocialContext();
 		this.removePromotedMessage();
@@ -22,102 +23,103 @@ class RealTweet extends Tweet {
 		this.replaceRetweets();
 		this.replaceLikes();
 
-		let contentContainer = $(this.article).find("div[lang]").parent().parent()
-		contentContainer.css('border', '0px solid red')
-		$(contentContainer).children().not(":last").remove()
 
-		contentContainer = $(contentContainer)[0]
-		contentContainer.prepend(fakeTweet.content);
-		const n = contentContainer.querySelector("a[role=link] > div > div > div[dir=auto] > span > span")
-		try {
-			n.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = '1px solid green'
-			n.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
-		} catch (error) {
-			console.log(error)
-		}
+		this.contentContainer = this.article.querySelector("div[lang]").parentElement.parentElement;
 
-		// time and date of tweet
-		const t = Array.from(contentContainer.querySelectorAll('span[aria-hidden="true"] > span')).find(el => el.textContent == '·');
-		try {
-			t.parentElement.parentElement.parentElement.parentElement.style.border = '1px solid orange'
-			t.parentElement.parentElement.parentElement.parentElement.remove()
-		} catch (error) {
-			console.log(error)
-		}
 
-		const r = contentContainer.querySelector(":first-child").querySelector("[data-testid=app-text-transition-container]")
-		try {
-			r.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.border = '1px solid red'
-			r.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
-		} catch (error) {
-			console.log(error)
-		}
+		this.contentContainer.querySelectorAll(":scope > :not(:last-child").forEach(e => e.remove());
 
-		// (duplicate) share buttons
-		const g = contentContainer.querySelector(":first-child").querySelector("div[role=group]")
-		try {
-			g.style.border = '1px solid yellow'
-			g.remove()
-		} catch (error) {
-			console.log(error)
-		}
+		this.contentContainer.prepend(fakeTweet.content);
 
-		// spacer div
-		const s = contentContainer.querySelector("div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child")
-		if (s != null) {
-			s.parentElement.parentElement.style.border = '1px solid brown'
-			s.parentElement.parentElement.remove()
-		}
-		$(contentContainer).find("div[lang]").css('font-size', '15px')
-		$(contentContainer).find("div[lang]").css('line-height', '20px')
-		$(contentContainer).find("div[lang]").parent().css('margin-top', '0')
+		this.removeHeader()
+		this.removeDateAndTime()
+		this.removeSocialBar()
+		this.removeShareButtons()
+		this.removeSpacer()
+		
+
+		this.contentContainer.querySelector("div[lang]").style.fontSize = '15px';
+		this.contentContainer.querySelector("div[lang]").style.lineHeight = '20px';
+		this.contentContainer.querySelector("div[lang]").parentElement.style.marginTop = '0';
 		modifyLikeButton(this.article, fakeTweet.id)
 
-		observer.observe($(this.article)[0]);
+		observer.observe(this.article);
+	}
+
+	removeSocialContext() {
+
+		const so_con = this.article.querySelector("[data-testid='socialContext']");
+		if(so_con) {
+			so_con.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove();
+		}
 	}
 
 	removePromotedMessage() {
-		let res = Array.from(this.article.get()[0].querySelectorAll('span'))
+		let res = Array.from(this.article.querySelectorAll('span'))
 			.find(el => el.textContent === 'Promoted');
 		if(res) {
 			res.parentElement.parentElement.remove()
 		}
 	}
 
-	removeSocialContext() {
-		$(this.article).find("[data-testid='socialContext']").parents().eq(5).remove()
-	}
-
 	replaceLink() {
-		$(this.article).find("a").eq(2).attr('href', '/' + this.fakeTweet.username + '/status/' + this.fakeTweet.id)
+		this.article.querySelectorAll("a")[2].setAttribute('href', '/' + this.fakeTweet.username + '/status/' + this.fakeTweet.id);
 	}
 
 	replaceProfileImage() {
-		$(this.article).find("a").eq(0).find("img").attr('src', this.fakeTweet.profile_image_url)
-		$(this.article).find("a").eq(0).find("img").prev().attr("style", "background-image: url('" + this.fakeTweet.profile_image_url + "')")
-
+		this.article.querySelector("a img").src = this.fakeTweet.profile_image_url
+		this.article.querySelector("a img").previousSibling.style.backgroundImage = "url('" + this.fakeTweet.profile_image_url + "')"
 	}
 
 	replaceUserName() {
-		$(this.article).find("a[role=link] div[dir=auto]:first-child span span").text(this.fakeTweet.username)
-		.parents().eq(4).attr('href', '/' + this.fakeTweet.username)
-		.hover(function (e) { e.stopPropagation() })
+		const username_container = this.article.querySelector("a[role=link] div[dir=auto]:first-child span span");
+		username_container.textContent = (this.fakeTweet.username);
+		const profile_image_container = username_container.parentElement.parentElement.parentElement.parentElement.parentElement
+		profile_image_container.setAttribute('href', '/' + this.fakeTweet.username);
+		profile_image_container.addEventListener('mouseover', function(e) { e.stopPropagation() })
+		username_container.addEventListener('mouseover', function(e) { e.stopPropagation() })
+
 	}
 
 	replaceName() {
-		$(this.article).find("a[role=link] div[dir=ltr] span").text("@" + this.fakeTweet.name)
+		this.article.querySelector("a[role=link] div[dir=ltr] span").textContent = "@" + this.fakeTweet.name
 	}
 
 	replaceReplies() {
-		$(this.article).find("[data-testid='reply'] span[data-testid='app-text-transition-container'] span").text(this.fakeTweet._replies)	
+		this.article.querySelector("[data-testid='reply'] span[data-testid='app-text-transition-container'] span").textContent = this.fakeTweet._replies
 	}
 	
 	replaceRetweets() {
-		$(this.article).find("[data-testid='retweet'] span[data-testid='app-text-transition-container'] span").text(this.fakeTweet._retweets)
+		this.article.querySelector("[data-testid='retweet'] span[data-testid='app-text-transition-container'] span").textContent = this.fakeTweet._retweets
 	}
 	
 	replaceLikes() {
-		$(this.article).find("[data-testid='like'] span[data-testid='app-text-transition-container'] span").text(this.fakeTweet._likes)
+		this.article.querySelector("[data-testid='like'] span[data-testid='app-text-transition-container'] span").textContent = this.fakeTweet._likes
+	}
+
+	removeHeader() {
+		const header = this.contentContainer.querySelector("a[role=link] > div > div > div[dir=auto] > span > span")
+		header.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
+	}
+
+	removeDateAndTime() {
+		const date_and_time = Array.from(this.contentContainer.querySelectorAll('span[aria-hidden="true"] > span')).find(el => el.textContent == '·');
+		date_and_time.parentElement.parentElement.parentElement.parentElement.remove()
+	}
+
+	removeSocialBar() {
+		const social_bar = this.contentContainer.querySelector(":first-child").querySelector("[data-testid=app-text-transition-container]")
+		social_bar.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
+	}
+
+	removeShareButtons() {
+		const share_buttons = this.contentContainer.querySelector(":first-child").querySelector("div[role=group]")
+		share_buttons.remove()
+	}
+
+	removeSpacer() {
+		const spacer = this.contentContainer.querySelector("div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child")
+		spacer.parentElement.parentElement.remove()
 	}
 
 	static new_random(firstHalfExhausted = false) {

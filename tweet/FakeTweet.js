@@ -11,7 +11,7 @@ class FakeTweet extends Tweet {
 		this._retweets = tweet['public_metrics.retweet_count']
 		this._replies = tweet['public_metrics.reply_count']
 		this._likes = tweet['public_metrics.like_count']
-		this.content = $(tweet['html']).first()[0]
+		this.content = DOM.createElementFromHTML(tweet['html'])
 	}
 
 	get replies() {
