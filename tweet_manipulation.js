@@ -14,8 +14,8 @@ function replaceArticle(article) {
 	tweet = manipulated_tweets[ran_misinfo];
 	tweet.index = ran_misinfo;
 	fakeTweet = new FakeTweet(tweet);
-	realTweet.replaceWith(fakeTweet);
-	// observer.observe($(to_replace)[0]);
+	r = new TweetReplacer(realTweet, fakeTweet);
+	r.replace();
 }
 
 function replaceArticleOld(article) {
