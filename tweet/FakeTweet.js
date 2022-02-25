@@ -6,12 +6,13 @@ class FakeTweet extends Tweet {
 		this.username = tweet.username
 		this.name = tweet.name
 		this.profile_image_url = tweet.profile_image_url
+		this.media_url = tweet.url
 		this.id = tweet.id
 		this.index = tweet.index
 		this._retweets = tweet['public_metrics.retweet_count']
 		this._replies = tweet['public_metrics.reply_count']
 		this._likes = tweet['public_metrics.like_count']
-		this.tweetElement = DOM.createElementFromHTML(tweet['html'])
+		this.tweetElement = DOM.createElementFromHTML(this.replaceMediaURLs(tweet['html']))
 	}
 
 	get replies() {
@@ -44,6 +45,21 @@ class FakeTweet extends Tweet {
 		this.likes = likes
 	}
 
+	// media and card urls change regularly. for the extension to work over longer periods we need to download and embed images locally
+	// does not work currently
+	replaceMediaURLs(html) {
+		console.log('replacing URLs in tweet ', this.id)
+		if(this.media_url) {
+			const pos_ext = this.media_url.indexOf('.jpg');
+			const without_ext = this.media_url.substring(0, pos_ext);
+			const url = without_ext + '?format=jpg&amp;name=small';
+			html.replace(url, chrome.runtime.getURL('images/url/'+this.id));
+			return html;
+		} else {
+			return html;
+		}
+	}
+
 	removeHeader() {
 		const header = this.tweetElement.querySelector("a[role=link] > div > div > div[dir=auto] > span > span")
 		header.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
@@ -56,7 +72,9 @@ class FakeTweet extends Tweet {
 
 	removeSocialBar() {
 		const social_bar = this.tweetElement.querySelector(":first-child").querySelector("[data-testid=app-text-transition-container]")
-		social_bar.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
+		if(social_bar) {
+			social_bar.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
+		}
 	}
 
 	removeShareButtons() {
@@ -67,6 +85,14 @@ class FakeTweet extends Tweet {
 	removeSpacer() {
 		const spacer = this.tweetElement.querySelector("div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child")
 		spacer.parentElement.parentElement.remove()
+	}
+
+	removeShowThread() {
+		console.log('thread removed')
+		const link = Array.from(this.tweetElement.querySelectorAll("a[role=link] span")).find(el => el.textContent === "Show this thread")
+		if(link) {
+			link.parentElement.parentElement.parentElement.parentElement.parentElement.remove();
+		}
 	}
 
 	styling() {

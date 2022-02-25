@@ -6,16 +6,16 @@ function nudge_text(tweet_id, like = false) {
 	retweets = n_tweet[0]['public_metrics.retweet_count']
 	network_factor = 10
 	platform_factor = 500
-	proportion_interacted = getRandomInt(95, 99)
+	proportion_interacted = Maths.getRandomInt(95, 99)
 	if (retweets < 2)
-		retweets = getRandomInt(2, 5)
+		retweets = Maths.getRandomInt(2, 5)
 	else if (retweets > 100) {
-		retweets = getRandomInt(70, 90)
+		retweets = Maths.getRandomInt(70, 90)
 	}
-	network_not_interacted = new Intl.NumberFormat().format(Math.floor((retweets * network_factor * (proportion_interacted / 100)) / generateNum(retweets)) * generateNum(retweets))
-	network_total = new Intl.NumberFormat().format(Math.ceil((retweets * network_factor) / generateNum(retweets)) * generateNum(retweets))
-	platform_not_interacted = new Intl.NumberFormat().format(Math.round((retweets * platform_factor * (proportion_interacted / 100)) / generateNum(retweets)) * generateNum(retweets))
-	platform_total = new Intl.NumberFormat().format(Math.round(((retweets * platform_factor)) / generateNum(retweets)) * generateNum(retweets))
+	network_not_interacted = new Intl.NumberFormat().format(Math.floor((retweets * network_factor * (proportion_interacted / 100)) / Maths.generateNum(retweets)) * Maths.generateNum(retweets))
+	network_total = new Intl.NumberFormat().format(Math.ceil((retweets * network_factor) / Maths.generateNum(retweets)) * Maths.generateNum(retweets))
+	platform_not_interacted = new Intl.NumberFormat().format(Math.round((retweets * platform_factor * (proportion_interacted / 100)) / Maths.generateNum(retweets)) * Maths.generateNum(retweets))
+	platform_total = new Intl.NumberFormat().format(Math.round(((retweets * platform_factor)) / Maths.generateNum(retweets)) * Maths.generateNum(retweets))
 	if (nudge == 'network + flag') {
 		text = 'In your personal Twitter network, ' + network_not_interacted + ' out of ' + network_total + ' people saw but did not like, reply or retweet this Tweet. <p>Some or all of the content shared in this Tweet conflicts with guidance from public health experts regarding COVID-19.</p>'
 		n_icon = 'group'

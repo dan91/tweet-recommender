@@ -30,12 +30,7 @@ chrome.runtime.onMessage.addListener(
 			setupExp()
 		}
 	}
-	);
-
-
-function generateNum(v) {
-	return Math.pow(10, v.toString().length - 1);
-}
+);
 
 function onEntry(entry) {
 
@@ -71,24 +66,18 @@ let options = {
 let observer = new IntersectionObserver(onEntry, options);
 
 
+f = new Feed();
 
-
-$(window).scroll(function () {
+document.addEventListener('scroll', e => {
+	f.updateFeed()	
+	
 	// if new tweets (articles) are loaded, inject new misinfo
 	if (lastArticleLength != $("article").length && window.location.pathname.includes('home') && condition && prolificID) {
 		replaced = 0;
-		console.log("new articles have arrived. inject misinfo")
 		injectMisinfo()
 	}
 });
 activated = false
-
-
-
-function getUsername() {
-	username = $("a[aria-label='Profile']").attr('href').substr(1)
-	return username
-}
 
 function logEvent(type, tweet = null, callback = null, content = null) {
 	chrome.storage.local.get(['currentStudyPart'], function(result) {
@@ -116,36 +105,8 @@ function logEvent(type, tweet = null, callback = null, content = null) {
 	})
 }
 
-
-history.pushState = (f => function pushState() {
-	var ret = f.apply(this, arguments);
-	window.dispatchEvent(new Event('pushstate'));
-	window.dispatchEvent(new Event('locationchange'));
-	return ret;
-})(history.pushState);
-
-history.replaceState = (f => function replaceState() {
-	var ret = f.apply(this, arguments);
-	window.dispatchEvent(new Event('replacestate'));
-	window.dispatchEvent(new Event('locationchange'));
-	return ret;
-})(history.replaceState);
-
-window.addEventListener('popstate', () => {
-	window.dispatchEvent(new Event('locationchange'))
-});
-
-window.addEventListener('locationchange', function () {
-	console.log('location changed!');
-})
-
 nudgeActivated = false
 
-function activateObserver() {
-	document.querySelector("[data-testid=reply").addEventListener('click', function () {
-		clearInterval(i2)
-		i2 = setInterval(checkIfVisible, 100)
-	})
-}
+
 
 

@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener(
       chrome.storage.local.get(['prolificID', 'impressions', 'study', 'currentStudyPart'], function (result) {
         // randomly sample some tweets for accuracy judgement
         max = 10
-        impressions = result.impressions ? getRandomSubarray(result.impressions, max).join(',') : ''
+        impressions = result.impressions ? Arrays.getRandomSubarray(result.impressions, max).join(',') : ''
         url = 'https://www.soscisurvey.de/tweet-recommender/?q=' + questionnaires[result.study][result.currentStudyPart] + '&p='+result.currentStudyPart+'&impressions=' + impressions + '&r=' + result.prolificID
         chrome.storage.local.set({ 'completionLink': url })
         chrome.tabs.getCurrent(function () {
@@ -45,16 +45,7 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
-function getRandomSubarray(arr, size) {
-  var shuffled = arr.slice(0), i = arr.length, temp, index;
-  while (i--) {
-    index = Math.floor((i + 1) * Math.random());
-    temp = shuffled[index];
-    shuffled[index] = shuffled[i];
-    shuffled[i] = temp;
-  }
-  return shuffled.slice(0, size);
-}
+
 const questionnaires = {
   1: {
     1: 'Followup_1_SocialIdentityPostBlock',

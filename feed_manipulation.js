@@ -4,10 +4,7 @@ function injectMisinfo() {
 	filtered = []
 	// filter out tweets that have replies (so we don't break existing conversations)
 	for (var i = 0; i < $("article").length; i++) {
-		noreplies = $('article').eq(i).find('div').filter(function () {
-			return $(this).css('width') == '2px';
-		});
-		if (noreplies.length > 0) {
+		if (f.replacable_tweets.length > 0) {
 			filtered.push(i)
 		}
 	}

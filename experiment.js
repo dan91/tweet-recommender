@@ -1,14 +1,14 @@
 function resetTimerAfterStudyPart() {
-if (urlParams.includes('resettimer')) {
-	resetTimer()
-	if(urlParams.includes('sdfierwui4v')) {
-		chrome.storage.local.set({ 'currentStudyPart': 2 })
-        chrome.storage.local.set({ 'completionLink': false })
-	} else if(urlParams.includes('5489fdu23')) {
-		chrome.storage.local.set({ 'currentStudyPart': 3 })
-		chrome.storage.local.set({ 'completionLink': false })
+	if (urlParams.includes('resettimer')) {
+		resetTimer()
+		if(urlParams.includes('sdfierwui4v')) {
+			chrome.storage.local.set({ 'currentStudyPart': 2 })
+	        chrome.storage.local.set({ 'completionLink': false })
+		} else if(urlParams.includes('5489fdu23')) {
+			chrome.storage.local.set({ 'currentStudyPart': 3 })
+			chrome.storage.local.set({ 'completionLink': false })
+		}
 	}
-}
 }
 
 function setupExp() {
@@ -49,11 +49,9 @@ function checkIfLoaded() {
 		return;
 	}
 	chrome.runtime.sendMessage({ running: true });
-	chrome.storage.local.set({ 'running': true })
+	chrome.storage.local.set({ 'running': true });
 
 	clearInterval(i)
-	console.log(prolificID, 'prolificID')
-	console.log(condition, 'condition')
 	
 	i = setInterval(function () {
 		if ($("article").length >= 5 && window.location.pathname.includes('/home')) {
@@ -64,7 +62,7 @@ function checkIfLoaded() {
 			if (misinfo_ids.includes(tweet_id)) {
 				setTimeout(function () {
 
-					activateObserver()
+					replyButtonClickObserver()
 					activated = true;
 					console.log('we are on a status page')
 					clearInterval(i)
@@ -78,6 +76,13 @@ function checkIfLoaded() {
 			}
 		}
 	}, 1000);
+}
+
+function replyButtonClickObserver() {
+	document.querySelector("[data-testid=reply").addEventListener('click', function () {
+		clearInterval(i2)
+		i2 = setInterval(checkIfVisible, 100)
+	})
 }
 
 function resetTimer() {

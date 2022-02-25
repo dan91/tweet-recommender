@@ -3,7 +3,7 @@ class TweetReplacer {
 		this.realTweet = realTweet;
 		this.fakeTweet = fakeTweet;
 	}
-	
+
 	replace() {
 		this.realTweet.tweetElement.dataset.misinfoId = this.fakeTweet.index;
 		this.realTweet.tweetElement.dataset.misinfoTweetId = this.fakeTweet.id;
@@ -24,11 +24,13 @@ class TweetReplacer {
 		this.realTweet.tweetElementContentContainer.querySelectorAll(":scope > :not(:last-child").forEach(e => e.remove());
 		this.realTweet.tweetElementContentContainer.prepend(this.fakeTweet.tweetElement);
 
+		// all of this could be done in python too
 		this.fakeTweet.removeHeader()
 		this.fakeTweet.removeDateAndTime()
 		this.fakeTweet.removeSocialBar()
 		this.fakeTweet.removeShareButtons()
 		this.fakeTweet.removeSpacer()
+		this.fakeTweet.removeShowThread()
 		
 		this.fakeTweet.styling()
 		
