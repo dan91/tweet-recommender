@@ -58,28 +58,29 @@ class RealTweet extends Tweet {
 		this.tweetElement.querySelector("[data-testid='like'] span[data-testid='app-text-transition-container'] span").textContent = likes
 	}
 
+	// this should not live here
 	static new_random(firstHalfExhausted = false) {
-		half = (manipulated_tweets.length - 1) / 2
-		full = (manipulated_tweets.length - 1)
-		limit = firstHalfExhausted ? full : half
+		const half = (manipulated_tweets.length - 1) / 2
+		const full = (manipulated_tweets.length - 1)
+		const limit = firstHalfExhausted ? full : half
 
 		console.log("[ran] select misinfo between 0 and ", limit)
 		console.log("[ran] alreadyInjected ", alreadyInjected.length)
-		var ran_misinfo = FakeTweet.getRandomInt(0, limit)
+		var ran_misinfo = Maths.getRandomInt(0, limit)
 		if (!alreadyInjected.includes(ran_misinfo)) {
 			return ran_misinfo;
 		} else if (alreadyInjected.length < limit) {
-			return new_random(firstHalfExhausted)
+			return RealTweet.new_random(firstHalfExhausted)
 		} else {
 			console.log("[ran] no new tweets")
 			if (!firstHalfExhausted) {
 				console.log("[ran] first half exhausted, now choose between all")
-				return new_random(true)
+				return RealTweet.new_random(true)
 			} else {
 				alreadyInjected = []
 				chrome.storage.local.set({ 'alreadyInjected': [] });
 				console.log("[ran] completely exhausted. RESET")
-				return new_random(true)
+				return RealTweet.new_random(true)
 			}
 		}
 	}
