@@ -16,12 +16,11 @@ class TweetReplacer {
 		this.realTweet.setUserName(this.fakeTweet.username);
 		this.realTweet.setName(this.fakeTweet.name);
 
-		// FIXME: does not call the getters in FakeTweet.js -> does not show manipulated engagement
-		this.realTweet.setReplies(this.fakeTweet._replies);
-		this.realTweet.setRetweets(this.fakeTweet._retweets);
-		this.realTweet.setLikes(this.fakeTweet._likes);
+		this.realTweet.setRetweets(this.fakeTweet.retweets);
+		this.realTweet.setReplies(this.fakeTweet.replies);
+		this.realTweet.setLikes(this.fakeTweet.likes);
 
-		this.realTweet.tweetElementContentContainer.querySelectorAll(":scope > :not(:last-child").forEach(e => e.remove());
+		this.realTweet.tweetElementContentContainer.querySelectorAll(":scope > :not(:last-child)").forEach(e => e.remove());
 		this.realTweet.tweetElementContentContainer.prepend(this.fakeTweet.tweetElement);
 
 		// all of this could be done in python too

@@ -66,17 +66,79 @@ let options = {
 let observer = new IntersectionObserver(onEntry, options);
 
 
-f = new Feed();
+feed = new Feed();
 
 document.addEventListener('scroll', e => {
-	f.updateFeed()	
-	
+	feed.updateFeed()
 	// if new tweets (articles) are loaded, inject new misinfo
 	if (lastArticleLength != $("article").length && window.location.pathname.includes('home') && condition && prolificID) {
 		replaced = 0;
 		injectMisinfo()
 	}
 });
+
+function injectMisinfo() {
+
+	chrome.storage.local.get('impressions', function (result) {
+		const impressions = result.impressions ? result.impressions : []
+		const all_fake_tweets_ids = [...manipulated_tweets.keys()];
+
+		//	https://stackoverflow.com/questions/1187518/how-to-get-the-difference-between-two-arrays-in-javascript
+		const pool_fake_tweets = all_fake_tweets_ids.filter(x => !impressions.includes(x));
+
+		feed.sample_real_tweets.forEach(t => {
+			const realTweet = new RealTweet(t)
+			const random_misinfo_tweet = Arrays.sample(pool_fake_tweets, 1, false);
+			const tweet = manipulated_tweets[random_misinfo_tweet];
+			tweet.index = random_misinfo_tweet;
+			const fakeTweet = new FakeTweet(tweet);
+			const r = new TweetReplacer(realTweet, fakeTweet);
+			r.replace();
+		});
+	});
+
+	attachClickHandlers()
+}
+
+
+function injectMisinfoOLD() {
+	let num_tweets = $("article").length
+	misinfo_proportion = 0.5
+
+	// Feed.replaceable_tweets
+	filtered = []
+	// filter out tweets that have replies (so we don't break existing conversations)
+	for (var i = 0; i < $("article").length; i++) {
+		// this should be replaced by Feed.replacable_tweets
+		noreplies = $('article').eq(i).find('div').filter(function () {
+			return $(this).css('width') === '2px';
+		});
+		if (noreplies.length > 0) {
+			filtered.push(i)
+		}
+	}
+	// get the last tweet that was considered for replacement and only replace afterwards
+	var replaced = $("article[data-misinfo-id]").length
+	for (var j = 0; j <= num_tweets * misinfo_proportion; j++) {
+		if (replaced < (num_tweets * misinfo_proportion)) {
+			tweet_idx_to_replace = Maths.getRandomInt(0, num_tweets)
+			if (!filtered.includes(tweet_idx_to_replace) && !isElementInViewport($("article").eq(tweet_idx_to_replace)[0])) {
+				replaceArticle($("article").eq(tweet_idx_to_replace))
+				replaced++;
+				console.log('continue with more misinfo: ', replaced / num_tweets, ' - should be ', misinfo_proportion)
+
+			} else {
+				console.log('skipping, this is a reply')
+			}
+		} else {
+			console.log('replace ratio exceeded', replaced / num_tweets, ' - should be ', misinfo_proportion)
+
+		}
+	}
+	lastArticleLength = num_tweets
+	attachClickHandlers()
+}
+
 activated = false
 
 function logEvent(type, tweet = null, callback = null, content = null) {

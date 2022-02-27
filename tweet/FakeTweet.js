@@ -16,8 +16,10 @@ class FakeTweet extends Tweet {
 	}
 
 	get replies() {
-		if (this._replies == 0) { 
-			return Math.floor(this._retweets / 2)
+		if (this._replies === 0) {
+			return Math.floor(this.retweets / 2)
+		} else {
+			return this._replies;
 		}
 	}
 
@@ -28,6 +30,8 @@ class FakeTweet extends Tweet {
 	get retweets() {
 		if (this._retweets < 5) {
 			return Maths.getRandomInt(11, 99)
+		} else {
+			return this._retweets;
 		}
 	}
 
@@ -36,8 +40,10 @@ class FakeTweet extends Tweet {
 	}
 
 	get likes() {
-		if (this._likes == 0) { 
-			return Math.floor(this._retweets * 4) 
+		if (this._likes === 0) {
+			return Math.floor(this.retweets * 4)
+		} else {
+			return this._likes;
 		}
 	}
 

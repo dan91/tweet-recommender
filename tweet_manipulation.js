@@ -11,10 +11,10 @@ function replaceArticle(article) {
 			return;
 	}
 	let realTweet = new RealTweet(article[0])
-	tweet = manipulated_tweets[ran_misinfo];
+	const tweet = manipulated_tweets[ran_misinfo];
 	tweet.index = ran_misinfo;
-	fakeTweet = new FakeTweet(tweet);
-	r = new TweetReplacer(realTweet, fakeTweet);
+	const fakeTweet = new FakeTweet(tweet);
+	const r = new TweetReplacer(realTweet, fakeTweet);
 	r.replace();
 }
 
