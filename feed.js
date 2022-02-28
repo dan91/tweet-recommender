@@ -21,6 +21,8 @@ i2 = undefined;
 i = undefined;
 idleLogoutCalled = false
 
+// todo: here we need an init function
+
 setupExp()
 
 // if all required fields in popup are filled in, set up the experiment
@@ -32,6 +34,7 @@ chrome.runtime.onMessage.addListener(
 	}
 );
 
+// todo: we need to observe impressions for fake AND real tweets, so we can determine exact proportion of seen fake tweets
 function onEntry(entry) {
 
 	chrome.storage.local.get(['alreadyInjected'], function (result) {
@@ -68,38 +71,31 @@ let observer = new IntersectionObserver(onEntry, options);
 
 feed = new Feed();
 
-document.addEventListener('scroll', e => {
-	feed.updateFeed()
-	// if new tweets (articles) are loaded, inject new misinfo
-	if (lastArticleLength != $("article").length && window.location.pathname.includes('home') && condition && prolificID) {
-		replaced = 0;
-		injectMisinfo()
-	}
+const new_tweet_observer_config = { childList: true, subTree: true };
+
+const new_tweet_observer = new MutationObserver(function(mutations) {
+	mutations.forEach(function(mutation) {
+		mutation.addedNodes.forEach(n => {
+			observer.observe(n)
+		});
+		// could maintain an array of observers, so we could disconnect when tweets is removed from feed
+		// mutation.removedNodes.forEach(n => { observer.disconnect()})
+		feed.updateFeed()
+		// if new tweets (articles) are loaded, inject new misinfo
+		if (window.location.pathname.includes('home') && condition && prolificID) {
+			replaced = 0;
+			feed.inject();
+			attachClickHandlers()
+		}
+	});
 });
 
-function injectMisinfo() {
-
-	chrome.storage.local.get('impressions', function (result) {
-		const impressions = result.impressions ? result.impressions : []
-		const all_fake_tweets_ids = [...manipulated_tweets.keys()];
-
-		//	https://stackoverflow.com/questions/1187518/how-to-get-the-difference-between-two-arrays-in-javascript
-		const pool_fake_tweets = all_fake_tweets_ids.filter(x => !impressions.includes(x));
-
-		feed.sample_real_tweets.forEach(t => {
-			const realTweet = new RealTweet(t)
-			const random_misinfo_tweet = Arrays.sample(pool_fake_tweets, 1, false);
-			const tweet = manipulated_tweets[random_misinfo_tweet];
-			tweet.index = random_misinfo_tweet;
-			const fakeTweet = new FakeTweet(tweet);
-			const r = new TweetReplacer(realTweet, fakeTweet);
-			r.replace();
-		});
-	});
-
-	attachClickHandlers()
-}
-
+// first we need to wait for Twitter's react to load before we can observe new tweets
+const selector = "article"
+DOM.waitForElm(selector).then(() => {
+	console.log(document.querySelector(selector))
+	new_tweet_observer.observe(document.querySelector("div[aria-label='Timeline: Your Home Timeline'] > div"), new_tweet_observer_config);
+});
 
 function injectMisinfoOLD() {
 	let num_tweets = $("article").length

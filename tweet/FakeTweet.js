@@ -94,7 +94,6 @@ class FakeTweet extends Tweet {
 	}
 
 	removeShowThread() {
-		console.log('thread removed')
 		const link = Array.from(this.tweetElement.querySelectorAll("a[role=link] span")).find(el => el.textContent === "Show this thread")
 		if(link) {
 			link.parentElement.parentElement.parentElement.parentElement.parentElement.remove();
