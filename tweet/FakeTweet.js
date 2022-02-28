@@ -48,13 +48,12 @@ class FakeTweet extends Tweet {
 	}
 
 	set likes(likes) {
-		this.likes = likes
+		this._likes = likes
 	}
 
 	// media and card urls change regularly. for the extension to work over longer periods we need to download and embed images locally
 	// does not work currently
 	replaceMediaURLs(html) {
-		console.log('replacing URLs in tweet ', this.id)
 		if(this.media_url) {
 			const pos_ext = this.media_url.indexOf('.jpg');
 			const without_ext = this.media_url.substring(0, pos_ext);

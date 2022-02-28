@@ -24,7 +24,12 @@ class Feed {
 	updateFeed() {
 		this.tweets = Array.from(document.querySelectorAll("article"));
 		chrome.storage.local.get('impressions', result => {
-			this.impressions = result.impressions ? result.impressions : []
+			if(!result.impressions) {
+				result.impressions = {};
+			}
+			this.impressions = {};
+			this.impressions.real_tweets = result.impressions.real_tweets ? result.impressions.real_tweets : 0;
+			this.impressions.fake_tweets = result.impressions.fake_tweets ? result.impressions.fake_tweets : [];
 		});
 	}
 
@@ -37,24 +42,41 @@ class Feed {
 		})
 	}
 
+	// sample the correct amount of real tweets that will be replaced by fake tweets
 	get sample_real_tweets() {
 		// todo: ratio needs to go to a Config object
 		const ratio = 0.5;
 		const replaceable_tweets = this.replaceable_tweets;
-		// todo: need to keep track of history of previously replaced tweets, so we have a reliable ratio
-		// currently we only estimate ratio based on tweets in current feed, but when users scroll those get replaced all the time
 
-		// if there is less replaceable tweets than we want to replace given the proportion, we replace all replaceable tweets
+		const current_ratio = this.impressions.fake_tweets.length / this.impressions.real_tweets
+
+		console.log('I have seen ', this.impressions.real_tweets, ' real tweets and ', this.impressions.fake_tweets.length, ' fake tweets');
+		console.log('Ratio: ', ( current_ratio ));
+
+		if(current_ratio > ratio) {
+			console.log('Ratio exceeded. Not replacing anything.')
+			return [];
+		}
+
+		// if there is less replaceable tweets than we want to replace, we replace all replaceable tweets
 		const k = (this.tweets.length * ratio <= replaceable_tweets.length) ? Math.floor(this.tweets.length * ratio) : replaceable_tweets.length;
 		return (replaceable_tweets.length === 0) ? [] : Arrays.sample(replaceable_tweets, k, false);
 	}
 
 	get injectable_fake_tweets() {
+
+		// todo: only reset fake tweets if ratio is not exceeded?
 		const all_fake_tweets_ids = [...manipulated_tweets.keys()];
+
+		if(all_fake_tweets_ids.length === this.impressions.fake_tweets.length) {
+			console.log('we have seen all fake tweets now. lets go for another round...');
+			this.impressions.fake_tweets = [];
+			chrome.storage.local.set({'impressions': this.impressions})
+		}
 
 		//	https://stackoverflow.com/questions/1187518/how-to-get-the-difference-between-two-arrays-in-javascript
 		return all_fake_tweets_ids.filter(x => {
-			return (!this.fake_tweets.map(e => parseInt(e.dataset.misinfoId)).includes(x) && !this.impressions.includes(x));
+			return (!this.fake_tweets.map(e => parseInt(e.dataset.misinfoId)).includes(x) && !this.impressions.fake_tweets.includes(x));
 		});
 	}
 

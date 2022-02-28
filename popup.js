@@ -96,7 +96,7 @@ button.addEventListener('click', function () {
   }
 })
 reset.addEventListener('click', function () {
-  chrome.storage.local.remove(['currentStudyPart', 'duration', 'start', 'condition', 'prolificID', 'completionLink']);
+  chrome.storage.local.remove(['currentStudyPart', 'duration', 'start', 'condition', 'prolificID', 'completionLink', 'impressions']);
 })
 
 function sendMessage(type, message = '', title = '') {

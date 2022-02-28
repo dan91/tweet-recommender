@@ -56,7 +56,7 @@ function checkIfLoaded() {
 	i = setInterval(function () {
 		if ($("article").length >= 5 && window.location.pathname.includes('/home')) {
 			clearInterval(i)
-			injectMisinfo()
+			// injectMisinfo()
 		} else if (window.location.pathname.includes('status') && !activated && $("article").length >= 1) {
 			tweet_id = window.location.pathname.split('/').pop()
 			if (misinfo_ids.includes(tweet_id)) {
@@ -79,7 +79,7 @@ function checkIfLoaded() {
 }
 
 function replyButtonClickObserver() {
-	document.querySelector("[data-testid=reply").addEventListener('click', function () {
+	document.querySelector("[data-testid=reply]").addEventListener('click', function () {
 		clearInterval(i2)
 		i2 = setInterval(checkIfVisible, 100)
 	})

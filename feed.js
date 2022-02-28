@@ -36,28 +36,35 @@ chrome.runtime.onMessage.addListener(
 
 // todo: we need to observe impressions for fake AND real tweets, so we can determine exact proportion of seen fake tweets
 function onEntry(entry) {
-
-	chrome.storage.local.get(['alreadyInjected'], function (result) {
-		alreadyInjected = result.alreadyInjected ? result.alreadyInjected : []
-
-
 		entry.forEach((change) => {
 			if (change.isIntersecting) {
-				tweetID = change.target.dataset.misinfoTweetId
+				const tweetID = change.target.dataset.misinfoTweetId;
+				const misinfoID = parseInt(change.target.dataset.misinfoId);
 				logEvent('impression', tweetID);
 				
 			// this is needed so we can later ask in the survey how accurate participants think the tweet was
 			// we store the index of the tweet in the array, so we can map it to the soscisurvey (here, IDs start with 0 and we can't control them, hence we map it here)
 
 			chrome.storage.local.get('impressions', function (result) {
-				impressions = result.impressions ? result.impressions : []
-				impressions.push(misinfo_ids.indexOf(tweetID) + 1)
+				// find a more elegant solution...
+				if(!result.impressions) {
+					result.impressions = {};
+				}
+				let impressions = {};
+				impressions.fake_tweets = result.impressions.fake_tweets ? result.impressions.fake_tweets : [];
+				impressions.real_tweets = result.impressions.real_tweets ? result.impressions.real_tweets : 0;
+				if(tweetID) {
+					if(!impressions.fake_tweets.includes(misinfoID)) {
+						impressions.fake_tweets.push(misinfoID);
+					}
+				} else {
+					impressions.real_tweets = impressions.real_tweets + 1;
+				}
+
 				chrome.storage.local.set({ 'impressions': impressions });
-			})
-			alreadyInjected.push(parseInt(change.target.dataset.misinfoId))
-			chrome.storage.local.set({ 'alreadyInjected': alreadyInjected });
+
+			});
 		}
-	});
 	});
 }
 
@@ -151,8 +158,7 @@ function logEvent(type, tweet = null, callback = null, content = null) {
 			currentStudyPart: currentStudyPart,
 			study: study
 		})
-		.then((docRef) => {
-			console.log("Engagement detected:", type, tweet, docRef.id);
+		.then(() => {
 			if (callback != null) {
 				callback()
 			}

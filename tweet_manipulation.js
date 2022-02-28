@@ -60,7 +60,7 @@ function modifyLikeButton(article, current_tweet_id) {
 }
 
 function attachClickHandlers(redirect = true) {
-	console.log("now attaching handlers", $("article").length)
+	// console.log("now attaching handlers", $("article").length)
 	$("article:not([data-misinfo-id])").off('click')
 	$("article:not([data-misinfo-id])").click(function () {
 		clearInterval(i2);
