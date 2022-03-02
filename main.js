@@ -21,8 +21,26 @@ i2 = undefined;
 i = undefined;
 idleLogoutCalled = false
 
-// todo: here we need an init function
-
+window.addEventListener('load', () => {
+	const gettingStoredSettings = chrome.storage.local.get("experiment");
+	gettingStoredSettings.then((result) => {
+		if(!result.experiment) {
+			chrome.runtime.sendMessage({showOptionsPage: true});
+			return;
+		}
+		console.log('setup Exp', result)
+		const condition = result.condition;
+		const prolificID = result.participant_id;
+		const trial = result.trial;
+		timer = setInterval(checkTimer, 1000)
+		DOM.waitForElm("article").then(() => {
+			new_tweet_observer.observe(
+				document.querySelector("div[aria-label='Timeline: Your Home Timeline'] > div"),
+				new_tweet_observer_config
+			);
+		});
+	})
+});
 setupExp()
 
 // if all required fields in popup are filled in, set up the experiment
@@ -88,23 +106,18 @@ const new_tweet_observer = new MutationObserver(function(mutations) {
 		mutation.addedNodes.forEach(n => {
 			observer.observe(n)
 		});
-		// could maintain an array of observers, so we could disconnect when tweets is removed from feed
+		// could maintain an array of observers, so we could disconnect when tweet is removed from feed
 		// mutation.removedNodes.forEach(n => { observer.disconnect()})
 		feed.updateFeed()
 		// if new tweets (articles) are loaded, inject new misinfo
-		if (window.location.pathname.includes('home') && condition && prolificID) {
-			replaced = 0;
+		if (window.location.pathname.includes('home')) {
 			feed.inject();
 			attachClickHandlers()
 		}
 	});
 });
 
-// first we need to wait for Twitter's react to load before we can observe new tweets
-const selector = "article"
-DOM.waitForElm(selector).then(() => {
-	new_tweet_observer.observe(document.querySelector("div[aria-label='Timeline: Your Home Timeline'] > div"), new_tweet_observer_config);
-});
+
 
 activated = false
 

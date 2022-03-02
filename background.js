@@ -1,18 +1,15 @@
 console.log('config')
 
-
-// import('config.js')
 chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
   // this is needed to load extension on new tab since Twitter updates navigation history
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     chrome.scripting.executeScript({
       target: { tabId: tabs[0].id, allFrames: true },
-      files: ['feed.js'],
+      files: ['main.js'],
     });
   })
 });
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
-  // if (temporary) return; // skip during development
   switch (reason) {
     case "install":
     {
@@ -34,6 +31,9 @@ chrome.runtime.onMessage.addListener(
     } else if (request.running === false) {
       chrome.action.setBadgeText({ text: '!' })
       chrome.action.setBadgeBackgroundColor({ color: [247, 82, 82, 1] });
+    } else if (request.showOptionsPage) {
+      const url = chrome.runtime.getURL("options.html");
+      chrome.tabs.create({ url });
     } else if (request.studyPartComplete) {
       chrome.storage.local.get(['prolificID', 'impressions', 'study', 'currentStudyPart'], function (result) {
         // randomly sample some tweets for accuracy judgement

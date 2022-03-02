@@ -1,3 +1,11 @@
+class Experiment {
+	constructor(participant_id, condition, trial) {
+		this.participant_id = participant_id;
+		this.condition = condition;
+		this.trial = trial;
+	}
+}
+
 function resetTimerAfterStudyPart() {
 	if (urlParams.includes('resettimer')) {
 		resetTimer()
@@ -12,30 +20,28 @@ function resetTimerAfterStudyPart() {
 }
 
 function setupExp() {
-	chrome.storage.local.get(['condition', 'prolificID', 'currentStudyPart', 'study', 'duration'], function (result) {
+	chrome.storage.local.get('experiment').then((result) => {
 		console.log('setup Exp', result)
-		notifiedStudyCompleted = result.currentStudyPart >= 3 && result.duration > 60*5
-		if (result.condition && result.prolificID && !notifiedStudyCompleted) {
-			condition = result.condition
-			prolificID = result.prolificID
-			study = result.study
-			currentStudyPart = result.currentStudyPart ? result.currentStudyPart : 1
-			timer = setInterval(checkTimer, 1000)
-			if (condition == 1) {
-				show_nudge = 0
-			} else if (condition == 2) {
-				show_nudge = 1
-				nudge = 'network + flag'
-			} else if (condition == 3) {
-				show_nudge = 1
-				nudge = 'overall + flag'
-			} else if (condition == 4) {
-				show_nudge = 1
-				nudge = 'combined + flag'
-			}
-			checkIfLoaded()
+		const condition = result.condition;
+		const prolificID = result.participant_id;
+		const trial = result.trial;
+		timer = setInterval(checkTimer, 1000)
+		if (condition === 1) {
+			show_nudge = 0
+		} else if (condition === 2) {
+			show_nudge = 1
+			nudge = 'network + flag'
+		} else if (condition === 3) {
+			show_nudge = 1
+			nudge = 'overall + flag'
+		} else if (condition === 4) {
+			show_nudge = 1
+			nudge = 'combined + flag'
 		}
-	});
+		checkIfLoaded();
+	}).catch(e => {
+		console.log(e);
+	})
 }
 
 // relation to setupExp() needs to be clearer
@@ -43,7 +49,7 @@ function checkIfLoaded() {
 	// this seems redundant to first if in setupExp()
 	if (!prolificID || !condition || notifiedStudyCompleted) {
 		console.log('prolificID or condition not set or study completed')
-		chrome.runtime.sendMessage({ running: false });
+		"chrome.runtime.sendMessage({ running: false });"
 		chrome.storage.local.set({ 'running': false })
 
 		return;
@@ -100,7 +106,7 @@ function checkTimer() {
 		chrome.storage.local.set({ 'duration': duration })
 
 		const minuteDuration = 60
-		if (duration == (minuteDuration * 5)) {
+		if (duration === (minuteDuration * 5)) {
 			currentStudyPart = result.currentStudyPart ? result.currentStudyPart : 1
 			chrome.storage.local.set({ 'currentStudyPart': currentStudyPart })
 			console.log('study part completed', currentStudyPart)

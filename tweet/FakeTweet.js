@@ -106,7 +106,7 @@ class FakeTweet extends Tweet {
 		div.parentElement.style.marginTop = '0';
 	}
 
-	modify_like_button(realTweet) {
+	like_handler(realTweet) {
 		realTweet.querySelector("[data-testid='like']").addEventListener('click', (e) => {
 			logEvent('clicked on like', this.id)
 			e.stopPropagation();
@@ -116,9 +116,9 @@ class FakeTweet extends Tweet {
 				if (!show_nudge) {
 					e.currentTarget.querySelector("svg").outerHTML = filled_heart
 					realTweet.dataset.liked = "1"
-					logEvent('liked', this.id)
+					logEvent('liked', this.id);
 				} else if (dialog == null) {
-					const n_text = like_dialog(this.id)
+					const n_text = like_dialog(this.id);
 					const appended = realTweet.querySelector("div[role=group]");
 					appended.parentElement.insertAdjacentHTML('afterbegin', n_text);
 					realTweet.querySelector("div.close").addEventListener('click',  (f) => {
