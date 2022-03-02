@@ -1,12 +1,7 @@
 class Feed {
 	constructor() {
-		this.updateFeed()
+		this.updateFeed(true);
 	}
-
-	get num_tweets() {
-		this.tweets.length;
-	}
-
 
 	get fake_tweets() {
 		return this.tweets.filter(t => t.hasAttribute("data-misinfo-id"));
@@ -16,20 +11,32 @@ class Feed {
 		return this.tweets.filter(t => !t.hasAttribute("data-misinfo-id"));
 	}
 
-	get fakeTweetRatio() {
-		return this.fake_tweets.length / this.tweets.length
+	reset_fake_tweets() {
+		if ([...manipulated_tweets.keys()].length === this.impressions.fake_tweets.length) {
+			console.log('we have seen all fake tweets now. lets go for another round...');
+			this.impressions.fake_tweets = [];
+			chrome.storage.local.set({'impressions': this.impressions});
+		}
 	}
 
-
-	updateFeed() {
+	updateFeed(reset = false) {
 		this.tweets = Array.from(document.querySelectorAll("article"));
 		chrome.storage.local.get('impressions', result => {
 			if(!result.impressions) {
 				result.impressions = {};
 			}
+
 			this.impressions = {};
-			this.impressions.real_tweets = result.impressions.real_tweets ? result.impressions.real_tweets : 0;
+			this.impressions.real_tweets_counter = result.impressions.real_tweets_counter ? result.impressions.real_tweets_counter : 0;
+			this.impressions.fake_tweets_counter = result.impressions.fake_tweets_counter ? result.impressions.fake_tweets_counter : 0;
+
 			this.impressions.fake_tweets = result.impressions.fake_tweets ? result.impressions.fake_tweets : [];
+
+			this.fake_tweets_proportion = this.impressions.fake_tweets_counter / this.impressions.real_tweets_counter;
+
+			if(reset) {
+				this.reset_fake_tweets();
+			}
 		});
 	}
 
@@ -45,34 +52,24 @@ class Feed {
 	// sample the correct amount of real tweets that will be replaced by fake tweets
 	get sample_real_tweets() {
 		// todo: ratio needs to go to a Config object
-		const ratio = 0.5;
+		const max_fake_tweets_proportion = 0.5;
 		const replaceable_tweets = this.replaceable_tweets;
 
-		const current_ratio = this.impressions.fake_tweets.length / this.impressions.real_tweets
+		console.log('I have seen ', this.impressions.real_tweets_counter, ' real tweets and ', this.impressions.fake_tweets_counter, ' fake tweets');
+		console.log('Ratio: ', ( this.fake_tweets_proportion ));
 
-		console.log('I have seen ', this.impressions.real_tweets, ' real tweets and ', this.impressions.fake_tweets.length, ' fake tweets');
-		console.log('Ratio: ', ( current_ratio ));
-
-		if(current_ratio > ratio) {
+		if(this.fake_tweets_proportion >= max_fake_tweets_proportion) {
 			console.log('Ratio exceeded. Not replacing anything.')
 			return [];
 		}
 
 		// if there is less replaceable tweets than we want to replace, we replace all replaceable tweets
-		const k = (this.tweets.length * ratio <= replaceable_tweets.length) ? Math.floor(this.tweets.length * ratio) : replaceable_tweets.length;
+		const k = (this.tweets.length * max_fake_tweets_proportion <= replaceable_tweets.length) ? Math.floor(this.tweets.length * max_fake_tweets_proportion) : replaceable_tweets.length;
 		return (replaceable_tweets.length === 0) ? [] : Arrays.sample(replaceable_tweets, k, false);
 	}
 
 	get injectable_fake_tweets() {
-
-		// todo: only reset fake tweets if ratio is not exceeded?
 		const all_fake_tweets_ids = [...manipulated_tweets.keys()];
-
-		if(all_fake_tweets_ids.length === this.impressions.fake_tweets.length) {
-			console.log('we have seen all fake tweets now. lets go for another round...');
-			this.impressions.fake_tweets = [];
-			chrome.storage.local.set({'impressions': this.impressions})
-		}
 
 		//	https://stackoverflow.com/questions/1187518/how-to-get-the-difference-between-two-arrays-in-javascript
 		return all_fake_tweets_ids.filter(x => {

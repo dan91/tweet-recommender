@@ -14,6 +14,9 @@
      "run_at": "document_end"
    }
  ],
+  "options_ui": {
+    "page": "options.html"
+  },
   "permissions": ["storage", "webNavigation", "scripting"],
   "action": {
     "default_popup": "popup.html",
@@ -34,6 +37,10 @@
       "resources": [ "images/*.png"],
       "matches": [ "*://twitter.com/*" ]
     }, 
+    {
+      "resources": [ "js/*.js"],
+      "matches": [ "*://twitter.com/*" ]
+    },
     {
       "resources": [ "js/*.js"],
       "matches": [ "*://twitter.com/*" ]

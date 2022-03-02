@@ -1,4 +1,4 @@
-var config = {
+const config = {
 	participantIdentifier: 'Prolific ID',
 
 	numberTrials: 3,

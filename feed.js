@@ -46,19 +46,22 @@ function onEntry(entry) {
 			// we store the index of the tweet in the array, so we can map it to the soscisurvey (here, IDs start with 0 and we can't control them, hence we map it here)
 
 			chrome.storage.local.get('impressions', function (result) {
-				// find a more elegant solution...
+				// find a more elegant solution to deal with the impressions object -> background script?
 				if(!result.impressions) {
 					result.impressions = {};
 				}
 				let impressions = {};
 				impressions.fake_tweets = result.impressions.fake_tweets ? result.impressions.fake_tweets : [];
-				impressions.real_tweets = result.impressions.real_tweets ? result.impressions.real_tweets : 0;
+				impressions.fake_tweets_counter = result.impressions.fake_tweets_counter ? result.impressions.fake_tweets_counter : 0;
+				impressions.real_tweets_counter = result.impressions.real_tweets_counter ? result.impressions.real_tweets_counter : 0;
+
 				if(tweetID) {
 					if(!impressions.fake_tweets.includes(misinfoID)) {
 						impressions.fake_tweets.push(misinfoID);
+						impressions.fake_tweets_counter++;
 					}
 				} else {
-					impressions.real_tweets = impressions.real_tweets + 1;
+					impressions.real_tweets_counter++;
 				}
 
 				chrome.storage.local.set({ 'impressions': impressions });
@@ -100,47 +103,8 @@ const new_tweet_observer = new MutationObserver(function(mutations) {
 // first we need to wait for Twitter's react to load before we can observe new tweets
 const selector = "article"
 DOM.waitForElm(selector).then(() => {
-	console.log(document.querySelector(selector))
 	new_tweet_observer.observe(document.querySelector("div[aria-label='Timeline: Your Home Timeline'] > div"), new_tweet_observer_config);
 });
-
-function injectMisinfoOLD() {
-	let num_tweets = $("article").length
-	misinfo_proportion = 0.5
-
-	// Feed.replaceable_tweets
-	filtered = []
-	// filter out tweets that have replies (so we don't break existing conversations)
-	for (var i = 0; i < $("article").length; i++) {
-		// this should be replaced by Feed.replacable_tweets
-		noreplies = $('article').eq(i).find('div').filter(function () {
-			return $(this).css('width') === '2px';
-		});
-		if (noreplies.length > 0) {
-			filtered.push(i)
-		}
-	}
-	// get the last tweet that was considered for replacement and only replace afterwards
-	var replaced = $("article[data-misinfo-id]").length
-	for (var j = 0; j <= num_tweets * misinfo_proportion; j++) {
-		if (replaced < (num_tweets * misinfo_proportion)) {
-			tweet_idx_to_replace = Maths.getRandomInt(0, num_tweets)
-			if (!filtered.includes(tweet_idx_to_replace) && !isElementInViewport($("article").eq(tweet_idx_to_replace)[0])) {
-				replaceArticle($("article").eq(tweet_idx_to_replace))
-				replaced++;
-				console.log('continue with more misinfo: ', replaced / num_tweets, ' - should be ', misinfo_proportion)
-
-			} else {
-				console.log('skipping, this is a reply')
-			}
-		} else {
-			console.log('replace ratio exceeded', replaced / num_tweets, ' - should be ', misinfo_proportion)
-
-		}
-	}
-	lastArticleLength = num_tweets
-	attachClickHandlers()
-}
 
 activated = false
 

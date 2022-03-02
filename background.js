@@ -1,8 +1,7 @@
 console.log('config')
 
 
-import('config.js')
-console.log('config', participantIdentifier)
+// import('config.js')
 chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
   // this is needed to load extension on new tab since Twitter updates navigation history
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -11,6 +10,18 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
       files: ['feed.js'],
     });
   })
+});
+chrome.runtime.onInstalled.addListener(async ({ reason }) => {
+  // if (temporary) return; // skip during development
+  switch (reason) {
+    case "install":
+    {
+      const url = chrome.runtime.getURL("options.html");
+      await chrome.tabs.create({ url });
+    }
+      break;
+      // see below
+  }
 });
 chrome.action.setBadgeText({ text: '!' })
 chrome.action.setBadgeBackgroundColor({ color: [247, 82, 82, 1] });
