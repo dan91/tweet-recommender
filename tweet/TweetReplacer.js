@@ -34,7 +34,7 @@ class TweetReplacer {
 		this.fakeTweet.styling()
 		
 		// TODO: make class method (needs some refactoring first, e.g. an Experiment class)
-		this.fakeTweet.like_handler(this.realTweet.tweetElement);
+		this.realTweet.like_handler(this.fakeTweet);
 
 		observer.observe(this.realTweet.tweetElement);
 	}

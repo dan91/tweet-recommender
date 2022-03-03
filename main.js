@@ -23,25 +23,55 @@ idleLogoutCalled = false
 
 window.addEventListener('load', () => {
 	const gettingStoredSettings = chrome.storage.local.get("experiment");
-	gettingStoredSettings.then((result) => {
-		if(!result.experiment) {
-			chrome.runtime.sendMessage({showOptionsPage: true});
-			return;
-		}
-		console.log('setup Exp', result)
-		const condition = result.condition;
-		const prolificID = result.participant_id;
-		const trial = result.trial;
-		timer = setInterval(checkTimer, 1000)
-		DOM.waitForElm("article").then(() => {
-			new_tweet_observer.observe(
-				document.querySelector("div[aria-label='Timeline: Your Home Timeline'] > div"),
-				new_tweet_observer_config
-			);
-		});
-	})
+	gettingStoredSettings.then(load_experiment);
 });
-setupExp()
+
+function load_experiment(result) {
+	if(!result.experiment) {
+		chrome.runtime.sendMessage({showOptionsPage: true});
+		return;
+	}
+	console.log('setup Exp', result)
+	// start the experiment timer
+	timer = setInterval(checkTimer, 1000);
+	// todo: integrate in Experiment.load() function -> retrieve from Config object
+	show_nudge = 1;
+	nudge = 'network + flag';
+	// todo: use 2 separate content scripts and match patterns
+	if (window.location.pathname.includes('/home')) {
+		DOM.waitForElm("article").then(init_tweet_observer);
+	} else if (window.location.pathname.includes('status')) {
+		init_single_tweet();
+	}
+}
+
+function init_tweet_observer() {
+	const selector = "div[aria-label='Timeline: Your Home Timeline'] > div";
+	new_tweet_observer.observe(document.querySelector(selector), new_tweet_observer_config);
+}
+
+function single_tweet_handlers(tweet_id) {
+	replyButtonClickObserver()
+	console.log('we are on a status page')
+	const realTweet = new RealTweet(document.querySelector('div[role=group]').closest("article"));
+	realTweet.tweetElement.setAttribute("data-misinfo-id", 1);
+	realTweet.tweetElement.setAttribute("data-misinfo-tweet-id", tweet_id)
+
+	realTweet.like_handler()
+	// modifyLikeButton(tweet, tweet_id)
+	attachClickHandlers(false);
+}
+
+function init_single_tweet() {
+	const tweet_id = window.location.pathname.split('/').pop()
+	if (!misinfo_ids.includes(tweet_id)) {
+		return;
+	}
+	DOM.waitForElm("article").then((tweet_id) => { single_tweet_handlers(tweet_id) });
+}
+
+
+// setupExp()
 
 // if all required fields in popup are filled in, set up the experiment
 chrome.runtime.onMessage.addListener(
@@ -52,7 +82,6 @@ chrome.runtime.onMessage.addListener(
 	}
 );
 
-// todo: we need to observe impressions for fake AND real tweets, so we can determine exact proportion of seen fake tweets
 function onEntry(entry) {
 		entry.forEach((change) => {
 			if (change.isIntersecting) {
@@ -104,16 +133,13 @@ const new_tweet_observer_config = { childList: true, subTree: true };
 const new_tweet_observer = new MutationObserver(function(mutations) {
 	mutations.forEach(function(mutation) {
 		mutation.addedNodes.forEach(n => {
-			observer.observe(n)
+			observer.observe(n);
 		});
 		// could maintain an array of observers, so we could disconnect when tweet is removed from feed
 		// mutation.removedNodes.forEach(n => { observer.disconnect()})
-		feed.updateFeed()
-		// if new tweets (articles) are loaded, inject new misinfo
-		if (window.location.pathname.includes('home')) {
-			feed.inject();
-			attachClickHandlers()
-		}
+		feed.updateFeed();
+		feed.inject();
+		attachClickHandlers();
 	});
 });
 
@@ -121,21 +147,20 @@ const new_tweet_observer = new MutationObserver(function(mutations) {
 
 activated = false
 
-function logEvent(type, tweet = null, callback = null, content = null) {
-	chrome.storage.local.get(['currentStudyPart'], function(result) {
-		currentStudyPart = result.currentStudyPart ? result.currentStudyPart : 0
+function logEvent(type, tweet_id = null, callback = null, content = null) {
+	const gettingExperiment = chrome.storage.local.get('experiment');
+	gettingExperiment.then((result)  => {
+		const experiment = result.experiment;
 		db.collection("engagements").add({
 			type: type,
-			user: prolificID,
-			tweet: tweet,
+			participant_id: experiment.participant_id,
+			condition: experiment.condition,
+			trial: experiment.trial,
+			tweet: tweet_id,
 			timestamp: Date.now(),
 			browser: navigator.userAgent,
 			content: content,
-			condition: condition,
-			currentStudyPart: currentStudyPart,
-			study: study
-		})
-		.then(() => {
+		}).then(() => {
 			if (callback != null) {
 				callback()
 			}

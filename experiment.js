@@ -4,6 +4,13 @@ class Experiment {
 		this.condition = condition;
 		this.trial = trial;
 	}
+
+	static load() {
+		const gettingExperiment = chrome.storage.local.get("experiment");
+		gettingExperiment.then(result => {
+
+		})
+	}
 }
 
 function resetTimerAfterStudyPart() {
@@ -64,22 +71,22 @@ function checkIfLoaded() {
 			clearInterval(i)
 			// injectMisinfo()
 		} else if (window.location.pathname.includes('status') && !activated && $("article").length >= 1) {
-			tweet_id = window.location.pathname.split('/').pop()
-			if (misinfo_ids.includes(tweet_id)) {
-				setTimeout(function () {
-
-					replyButtonClickObserver()
-					activated = true;
-					console.log('we are on a status page')
-					clearInterval(i)
-					$('div[role=group]').closest("article").attr("data-misinfo-id", 1)
-					lastInteractionWithMisinfoTweetId = tweet_id
-					$('div[role=group]').closest("article").attr("data-misinfo-tweet-id", tweet_id)
-
-					modifyLikeButton($('div[role=group]').closest("article"), tweet_id)
-					attachClickHandlers(false);
-				}, 400)
-			}
+			// tweet_id = window.location.pathname.split('/').pop()
+			// if (misinfo_ids.includes(tweet_id)) {
+			// 	setTimeout(function () {
+			//
+			// 		replyButtonClickObserver()
+			// 		activated = true;
+			// 		console.log('we are on a status page')
+			// 		clearInterval(i)
+			// 		$('div[role=group]').closest("article").attr("data-misinfo-id", 1)
+			// 		lastInteractionWithMisinfoTweetId = tweet_id
+			// 		$('div[role=group]').closest("article").attr("data-misinfo-tweet-id", tweet_id)
+			//
+			// 		modifyLikeButton($('div[role=group]').closest("article"), tweet_id)
+			// 		attachClickHandlers(false);
+			// 	}, 400)
+			// }
 		}
 	}, 1000);
 }

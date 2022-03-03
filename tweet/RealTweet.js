@@ -2,7 +2,9 @@ class RealTweet extends Tweet {
 	constructor (tweet) {
 		super();
 		this.tweetElement = tweet;
-		this.tweetElementContentContainer = tweet.querySelector("div[lang]").parentElement.parentElement;
+		this.tweetElementContentContainer = tweet.querySelector("div[lang]")
+			.parentElement
+			.parentElement;
 	}
 
 	removeSocialContext() {
@@ -58,31 +60,43 @@ class RealTweet extends Tweet {
 		this.tweetElement.querySelector("[data-testid='like'] span[data-testid='app-text-transition-container'] span").textContent = likes
 	}
 
-	// this should not live here
-	static new_random(firstHalfExhausted = false) {
-		const half = (manipulated_tweets.length - 1) / 2
-		const full = (manipulated_tweets.length - 1)
-		const limit = firstHalfExhausted ? full : half
-
-		console.log("[ran] select misinfo between 0 and ", limit)
-		console.log("[ran] alreadyInjected ", alreadyInjected.length)
-		var ran_misinfo = Maths.getRandomInt(0, limit)
-		if (!alreadyInjected.includes(ran_misinfo)) {
-			return ran_misinfo;
-		} else if (alreadyInjected.length < limit) {
-			return RealTweet.new_random(firstHalfExhausted)
-		} else {
-			console.log("[ran] no new tweets")
-			if (!firstHalfExhausted) {
-				console.log("[ran] first half exhausted, now choose between all")
-				return RealTweet.new_random(true)
+	like_handler(fakeTweet) {
+		// if we are replacing a real tweet, we assign the like to the fake tweet.
+		// if not, we are on a singe tweet page and keep the real tweet id
+		const tweet_id = fakeTweet ? fakeTweet.id : this.id;
+		this.tweetElement.querySelector("[data-testid='like']").addEventListener('click', (e) => {
+			logEvent('clicked on like', tweet_id)
+			e.stopPropagation();
+			const orig_target = e.currentTarget;
+			const dialog = this.tweetElement.parentElement.querySelector(".nudgeConfirmDialog")
+			if (this.tweetElement.dataset.liked !== "1") {
+				if (!show_nudge) {
+					e.currentTarget.querySelector("svg").outerHTML = filled_heart
+					this.tweetElement.dataset.liked = "1"
+					logEvent('liked', tweet_id);
+				} else if (dialog == null) {
+					const n_text = like_dialog(tweet_id);
+					const appended = this.tweetElement.querySelector("div[role=group]");
+					appended.parentElement.insertAdjacentHTML('afterbegin', n_text);
+					this.tweetElement.querySelector("div.close").addEventListener('click',  (f) => {
+						f.currentTarget.closest(".nudgeConfirmDialog").remove()
+					})
+					this.tweetElement.dataset.liked = "0"
+					document.querySelector(".nudgeConfirmDialog div[data-testid='tweetButton']").addEventListener('click', (g) => {
+						orig_target.querySelector("svg").outerHTML = filled_heart
+						g.currentTarget.closest(".nudgeConfirmDialog").remove();
+						this.tweetElement.dataset.liked = "1"
+						logEvent('liked', tweet_id)
+					})
+				} else {
+					e.currentTarget.closest(".nudgeConfirmDialog").remove()
+				}
 			} else {
-				alreadyInjected = []
-				chrome.storage.local.set({ 'alreadyInjected': [] });
-				console.log("[ran] completely exhausted. RESET")
-				return RealTweet.new_random(true)
+				logEvent('unliked', tweet_id)
+				this.tweetElement.dataset.liked = "0"
+				e.currentTarget.querySelector("svg").outerHTML = empty_heart
 			}
-		}
+		})
 	}
 
 }

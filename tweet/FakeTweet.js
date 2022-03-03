@@ -1,7 +1,6 @@
 class FakeTweet extends Tweet {
 	constructor(tweet) {
 		super();
-		this.alreadyInjected = false;
 
 		this.username = tweet.username
 		this.name = tweet.name
@@ -67,7 +66,9 @@ class FakeTweet extends Tweet {
 
 	removeHeader() {
 		const header = this.tweetElement.querySelector("a[role=link] > div > div > div[dir=auto] > span > span")
-		header.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
+		if(header) {
+			header.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
+		}
 	}
 
 	removeDateAndTime() {
@@ -89,7 +90,9 @@ class FakeTweet extends Tweet {
 
 	removeSpacer() {
 		const spacer = this.tweetElement.querySelector("div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child")
-		spacer.parentElement.parentElement.remove()
+		if(spacer) {
+			spacer.parentElement.parentElement.remove()
+		}
 	}
 
 	removeShowThread() {
@@ -104,41 +107,5 @@ class FakeTweet extends Tweet {
 		div.style.fontSize = '15px';
 		div.style.lineHeight = '20px';
 		div.parentElement.style.marginTop = '0';
-	}
-
-	like_handler(realTweet) {
-		realTweet.querySelector("[data-testid='like']").addEventListener('click', (e) => {
-			logEvent('clicked on like', this.id)
-			e.stopPropagation();
-			const orig_target = e.currentTarget;
-			const dialog = realTweet.parentElement.querySelector(".nudgeConfirmDialog")
-			if (realTweet.dataset.liked !== "1") {
-				if (!show_nudge) {
-					e.currentTarget.querySelector("svg").outerHTML = filled_heart
-					realTweet.dataset.liked = "1"
-					logEvent('liked', this.id);
-				} else if (dialog == null) {
-					const n_text = like_dialog(this.id);
-					const appended = realTweet.querySelector("div[role=group]");
-					appended.parentElement.insertAdjacentHTML('afterbegin', n_text);
-					realTweet.querySelector("div.close").addEventListener('click',  (f) => {
-						f.currentTarget.closest(".nudgeConfirmDialog").remove()
-					})
-					realTweet.dataset.liked = "0"
-					document.querySelector(".nudgeConfirmDialog div[data-testid='tweetButton']").addEventListener('click', (g) => {
-						orig_target.querySelector("svg").outerHTML = filled_heart
-						g.currentTarget.closest(".nudgeConfirmDialog").remove();
-						realTweet.dataset.liked = "1"
-						logEvent('liked', this.id)
-					})
-				} else {
-					e.currentTarget.closest(".nudgeConfirmDialog").remove()
-				}
-			} else {
-				logEvent('unliked', this.id)
-				realTweet.dataset.liked = "0"
-				e.currentTarget.querySelector("svg").outerHTML = empty_heart
-			}
-		})
 	}
 }
