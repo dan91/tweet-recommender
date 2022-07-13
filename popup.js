@@ -1,4 +1,4 @@
-// Initialize butotn with users's prefered color
+// Initialize button with users's prefered color
 let input = document.getElementById("prolificID");
 let button = document.getElementById("submitID");
 // let reset = document.getElementById("resetID");
@@ -6,14 +6,6 @@ let reset = document.getElementById("resetLocalStorage");
 let messageDiv = document.getElementById("message");
 let durationSpan = document.getElementById("duration");
 let completionLink = document.getElementById("completionLink");
-var firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
-};
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
@@ -38,27 +30,27 @@ function checkConditionAndProID() {
     }
   })
 }
-function receiveCondition() {
-  docRef.get().then((doc) => {
-    if (doc.exists) {
-      current_assignment = doc.data().current_assignment
-      console.log("Current Assignment:", current_assignment);
-      condition = assignments[current_assignment]
-
-      const study = current_assignment <= 325 ? 1 : 2;
-
-      docRef.update({ current_assignment: firebase.firestore.FieldValue.increment(1) });
-      chrome.storage.local.set({ 'condition': condition });
-      chrome.storage.local.set({ 'study': study });
-    } else {
-      console.log("No such document!");
-      return false
-    }
-  }).catch((error) => {
-    console.log("Error getting document:", error);
-    return false
-  });
-}
+// function receiveCondition() {
+//   docRef.get().then((doc) => {
+//     if (doc.exists) {
+//       current_assignment = doc.data().current_assignment
+//       console.log("Current Assignment:", current_assignment);
+//       condition = assignments[current_assignment]
+//
+//       const study = current_assignment <= 325 ? 1 : 2;
+//
+//       docRef.update({ current_assignment: firebase.firestore.FieldValue.increment(1) });
+//       chrome.storage.local.set({ 'condition': condition });
+//       chrome.storage.local.set({ 'study': study });
+//     } else {
+//       console.log("No such document!");
+//       return false
+//     }
+//   }).catch((error) => {
+//     console.log("Error getting document:", error);
+//     return false
+//   });
+// }
 chrome.runtime.onMessage.addListener(
   function (request) {
     console.log(request)
@@ -104,7 +96,7 @@ button.addEventListener('click', function () {
   }
 })
 reset.addEventListener('click', function () {
-  chrome.storage.local.remove(['currentStudyPart', 'duration', 'start', 'condition', 'prolificID', 'completionLink']);
+  chrome.storage.local.remove(['experiment', 'currentStudyPart', 'duration', 'start', 'condition', 'prolificID', 'completionLink', 'impressions']);
 })
 
 function sendMessage(type, message = '', title = '') {

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="options.css">
+
+</head>
+
+<body>
+
+<div class="container right-panel-active" id="container">
+    <div class="form-container start-experiment-container">
+        <form action="#">
+            <h1>Your Participant ID</h1>
+            <input type="text" id="participant_id" />
+            <button id="startExperiment">Start Experiment</button>
+        </form>
+    </div>
+    <div class="form-container sign-in-container">
+
+    </div>
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>Welcome!</h1>
+                <p>To start the experiment, please enter your Participant ID.</p>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>Experiment is starting...</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<footer>-->
+<!--    <p>-->
+<!--        Created with <i class="fa fa-heart"></i> by-->
+<!--        <a target="_blank" href="https://florin-pop.com">Florin Pop</a>-->
+<!--        - Read how I created this and how you can join the challenge-->
+<!--        <a target="_blank" href="https://www.florin-pop.com/blog/2019/03/double-slider-sign-in-up-form/">here</a>.-->
+<!--    </p>-->
+<!--</footer>-->
+<script src="js/firebase-app.js"></script>
+<script src="js/firebase-firestore.js"></script>
+<script src="js/firebase-credentials.js"></script>
+<script src="options.js"></script>
+<script src="config.js"></script>
+<script src="assignments.js"></script>
+
+</body>
+
+</html>

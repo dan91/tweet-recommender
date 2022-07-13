@@ -1,18 +1,22 @@
 {
   "name": "Tweet Recommender",
   "description": "This extension only works for participants of the Tweet Recommender study.",
-  "version": "2.1.1",
+  "version": "2.2",
   "manifest_version": 3,
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
    {
      "matches": ["*://*.twitter.com/*"],
-     "js":  ["js/jquery-3.6.0.min.js", "js/firebase-app.js", "js/firebase-firestore.js", "misinfo_tweets.js", "assignments.js", "feed.js"],
+     "js":  ["js/jquery-3.6.0.min.js", "js/firebase-app.js", "js/firebase-firestore.js", "js/firebase-credentials.js", "config.js", "utils/Arrays.js", "utils/Maths.js", "utils/DOM.js", "tweet/Feed.js", "tweet/Tweet.js", "tweet/FakeTweet.js", "tweet/RealTweet.js", "tweet/TweetReplacer.js", "manipulated_tweets.js", "assignments.js", "Experiment.js", "tweet_manipulation.js", "nudge.js", "icons.js", "main.js"],
      "run_at": "document_end"
    }
  ],
+  "options_ui": {
+    "page": "options.html"
+  },
   "permissions": ["storage", "webNavigation", "scripting"],
   "action": {
     "default_popup": "popup.html",
@@ -33,6 +37,10 @@
       "resources": [ "images/*.png"],
       "matches": [ "*://twitter.com/*" ]
     }, 
+    {
+      "resources": [ "js/*.js"],
+      "matches": [ "*://twitter.com/*" ]
+    },
     {
       "resources": [ "js/*.js"],
       "matches": [ "*://twitter.com/*" ]
