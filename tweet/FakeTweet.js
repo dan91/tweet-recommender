@@ -2,16 +2,17 @@ class FakeTweet extends Tweet {
 	constructor(tweet) {
 		super();
 
-		this.username = tweet.username
-		this.name = tweet.name
-		this.profile_image_url = tweet.profile_image_url
-		this.media_url = tweet.url
-		this.id = tweet.id
-		this.index = tweet.index
-		this._retweets = tweet['public_metrics.retweet_count']
-		this._replies = tweet['public_metrics.reply_count']
-		this._likes = tweet['public_metrics.like_count']
-		this.tweetElement = DOM.createElementFromHTML(this.replaceMediaURLs(tweet['html']))
+		this.username = tweet.name;
+		this.name = tweet.username;
+		this.profile_image_url = tweet.profile_image_url;
+		this.media_url = tweet.url;
+		this.id = tweet.id;
+		this.index = tweet.index;
+		this._retweets = tweet['public_metrics.retweet_count'];
+		this._replies = tweet['public_metrics.reply_count'];
+		this._likes = tweet['public_metrics.like_count'];
+		this.tweetElement = new DOMParser().parseFromString(tweet.html, "text/html").body.querySelector("div");
+		this.tweetHTML = tweet.html;
 	}
 
 	get replies() {
@@ -65,9 +66,9 @@ class FakeTweet extends Tweet {
 	}
 
 	removeHeader() {
-		const header = this.tweetElement.querySelector("a[role=link] > div > div > div[dir=auto] > span > span")
+		const header = this.tweetElement.querySelectorAll("a[role=link]")[4].parentElement.parentElement.parentElement.parentElement.previousSibling;
 		if(header) {
-			header.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.remove()
+			header.remove()
 		}
 	}
 

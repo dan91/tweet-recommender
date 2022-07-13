@@ -39,7 +39,18 @@ function modifyLikeButton(article, current_tweet_id) {
 	})
 }
 
-function attachClickHandlers(redirect = true) {
+// 		if (redirect && $(e.target).parents('[data-testid="like"], [data-testid="retweet"], [data-testid="reply"], .nudgeConfirmDialog').length == 0 && !$(e.target).is('[data-testid="like"], [data-testid="retweet"], [data-testid="reply"]')) {
+// 			e.stopPropagation()
+// 			href = $(this).find("a").eq(2).attr('href')
+// 			logEvent('click on misinformation', lastInteractionWithMisinfoTweetId, function () { window.location.href = href })
+// 		} else if ($(e.target).parents('[data-testid="reply"]').length == 1) {
+// 			logEvent('clicked on reply', lastInteractionWithMisinfoTweetId)
+// 		}
+// 		attachButtonHandler($(this))
+// 	})
+// }
+
+function attachClickHandlersOLD(redirect = true) {
 	// console.log("now attaching handlers", $("article").length)
 	$("article:not([data-misinfo-id])").off('click')
 	$("article:not([data-misinfo-id])").click(function () {

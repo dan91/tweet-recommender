@@ -4,13 +4,6 @@ class Experiment {
 		this.condition = condition;
 		this.trial = trial;
 	}
-
-	static load() {
-		const gettingExperiment = chrome.storage.local.get("experiment");
-		gettingExperiment.then(result => {
-
-		})
-	}
 }
 
 function resetTimerAfterStudyPart() {

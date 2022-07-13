@@ -33,13 +33,13 @@ function load_experiment(result) {
 	}
 	console.log('setup Exp', result)
 	// start the experiment timer
-	timer = setInterval(checkTimer, 1000);
-	// todo: integrate in Experiment.load() function -> retrieve from Config object
-	show_nudge = 1;
-	nudge = 'network + flag';
+	let timer = setInterval(checkTimer, 1000);
+	let nudge = result.experiment.nudge_message;
+	let show_nudge = 1;
 	// todo: use 2 separate content scripts and match patterns
 	if (window.location.pathname.includes('/home')) {
-		DOM.waitForElm("article").then(init_tweet_observer);
+		console.log('includes home, wait for article to appear');
+		DOM.waitForElm("article", document.body).then(init_tweet_observer);
 	} else if (window.location.pathname.includes('status')) {
 		init_single_tweet();
 	}
@@ -47,11 +47,12 @@ function load_experiment(result) {
 
 function init_tweet_observer() {
 	const selector = "div[aria-label='Timeline: Your Home Timeline'] > div";
+	console.log('start observer')
 	new_tweet_observer.observe(document.querySelector(selector), new_tweet_observer_config);
 }
 
 function single_tweet_handlers(tweet_id) {
-	replyButtonClickObserver()
+	replyButtonClickObserver();
 	console.log('we are on a status page')
 	const realTweet = new RealTweet(document.querySelector('div[role=group]').closest("article"));
 	realTweet.tweetElement.setAttribute("data-misinfo-id", 1);
@@ -84,15 +85,15 @@ chrome.runtime.onMessage.addListener(
 
 function onEntry(entry) {
 		entry.forEach((change) => {
-			if (change.isIntersecting) {
-				const tweetID = change.target.dataset.misinfoTweetId;
-				const misinfoID = parseInt(change.target.dataset.misinfoId);
-				logEvent('impression', tweetID);
-				
-			// this is needed so we can later ask in the survey how accurate participants think the tweet was
-			// we store the index of the tweet in the array, so we can map it to the soscisurvey (here, IDs start with 0 and we can't control them, hence we map it here)
+			if (!change.isIntersecting) {
+				return;
+			}
+			const tweetID = change.target.dataset.misinfoTweetId;
+			const misinfoID = parseInt(change.target.dataset.misinfoId);
+			logEvent('impression', tweetID);
 
-			chrome.storage.local.get('impressions', function (result) {
+			const getting_impressions = chrome.storage.local.get('impressions');
+			getting_impressions.then(result => {
 				// find a more elegant solution to deal with the impressions object -> background script?
 				if(!result.impressions) {
 					result.impressions = {};
@@ -112,10 +113,8 @@ function onEntry(entry) {
 				}
 
 				chrome.storage.local.set({ 'impressions': impressions });
-
 			});
-		}
-	});
+		});
 }
 
 // list of options
@@ -139,7 +138,7 @@ const new_tweet_observer = new MutationObserver(function(mutations) {
 		// mutation.removedNodes.forEach(n => { observer.disconnect()})
 		feed.updateFeed();
 		feed.inject();
-		attachClickHandlers();
+		// attachClickHandlers();
 	});
 });
 

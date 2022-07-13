@@ -21,20 +21,22 @@ class TweetReplacer {
 		this.realTweet.setLikes(this.fakeTweet.likes);
 
 		this.realTweet.tweetElementContentContainer.querySelectorAll(":scope > :not(:last-child)").forEach(e => e.remove());
+		// this.realTweet.tweetElementContentContainer.insertAdjacentHTML('afterbegin', this.fakeTweet.tweetHTML);
 		this.realTweet.tweetElementContentContainer.prepend(this.fakeTweet.tweetElement);
+		// this.realTweet.tweetElementContentContainer.prepend('NEW TWEET HERE');
 
 		// all of this could be done in python too
-		this.fakeTweet.removeHeader()
-		this.fakeTweet.removeDateAndTime()
-		this.fakeTweet.removeSocialBar()
-		this.fakeTweet.removeShareButtons()
-		this.fakeTweet.removeSpacer()
-		this.fakeTweet.removeShowThread()
-		
+		this.fakeTweet.removeHeader();
+		this.fakeTweet.removeDateAndTime();
+		this.fakeTweet.removeSocialBar();
+		this.fakeTweet.removeShareButtons();
+		this.fakeTweet.removeSpacer();
+		this.fakeTweet.removeShowThread();
+
 		this.fakeTweet.styling()
 		
-		// TODO: make class method (needs some refactoring first, e.g. an Experiment class)
-		this.realTweet.like_handler(this.fakeTweet);
+		// this.realTweet.like_handler(this.fakeTweet);
+		this.realTweet.attachClickHandlers(this.fakeTweet);
 
 		observer.observe(this.realTweet.tweetElement);
 	}

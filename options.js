@@ -18,15 +18,14 @@ function set_condition() {
             console.log("Current Assignment:", current_assignment);
             const condition = assignments[current_assignment]
             docRef.update({current_assignment: firebase.firestore.FieldValue.increment(1)});
-            chrome.storage.local.set({'experiment': {'participant_id': participant_id.value, 'condition': condition, 'trial': 1}});
+            const nudge_message = config.conditions[condition].nudge_message;
+            chrome.storage.local.set({
+                'experiment': {'participant_id': participant_id.value, 'condition': condition, 'trial': 1, 'nudge_message': nudge_message}
+            });
             setTimeout(() => { window.location.replace('https://www.twitter.com')}, 1000);
         }
     }).catch((error) => {
         console.log("Error getting document:", error);
         return false
     });
-}
-
-
-function redirect_to_twitter() {
 }

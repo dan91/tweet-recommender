@@ -51,8 +51,7 @@ class Feed {
 
 	// sample the correct amount of real tweets that will be replaced by fake tweets
 	get sample_real_tweets() {
-		// todo: ratio needs to go to a Config object
-		const max_fake_tweets_proportion = 0.5;
+		const max_fake_tweets_proportion = config.max_fake_tweets_proportion;
 		const replaceable_tweets = this.replaceable_tweets;
 
 		console.log('I have seen ', this.impressions.real_tweets_counter, ' real tweets and ', this.impressions.fake_tweets_counter, ' fake tweets');

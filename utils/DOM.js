@@ -1,6 +1,6 @@
 class DOM {
 	static createElementFromHTML(htmlString) {
-	  var div = document.createElement('div');
+	  const div = document.createElement('div');
 	  div.innerHTML = htmlString.trim();
 
 	  // Change this to div.childNodes to support multiple top-level nodes.
@@ -17,20 +17,20 @@ class DOM {
 		);
 	}
 
-	static waitForElm(selector) {
+	static waitForElm(selector, element = document.body) {
 		return new Promise(resolve => {
 			if (document.querySelector(selector)) {
 				return resolve(document.querySelector(selector));
 			}
 
-			const observer = new MutationObserver(() => {
+			const observer = new MutationObserver(mutations => {
+
 				if (document.querySelector(selector)) {
 					resolve(document.querySelector(selector));
 					observer.disconnect();
 				}
 			});
-
-			observer.observe(document.getElementById('react-root'), {
+			observer.observe(element, {
 				childList: true,
 				subtree: true
 			});
