@@ -1,3 +1,5 @@
 js/firebase-credentials.js
 */.DS_Store
 .DS_Store
+.vscode/settings.json
+.DS_Store
